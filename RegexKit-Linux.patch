@@ -1,0 +1,238 @@
+diff -Nur RegexKit_0.6.0_source.orig/GNUstep/GNUmakefile RegexKit_0.6.0_source.Linux/GNUstep/GNUmakefile
+--- RegexKit_0.6.0_source.orig/GNUstep/GNUmakefile	2008-01-23 15:32:38.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/GNUstep/GNUmakefile	2008-02-02 20:42:50.000000000 -0700
+@@ -11,14 +11,6 @@
+ 
+ PCRE_LIBS               = $(shell pcre-config --libs)
+ PCRE_CFLAGS             = $(shell pcre-config --cflags)
+-PCRE_HEADER             = $(shell perl -e '$$x = "${PCRE_CFLAGS}"; $$x =~ /\-I(.*?\/include\b)/; print("$$1/pcre.h");')
+-
+-ORIGINAL_RK_PCRE_HEADER = $(shell diff -q '${REGEXKIT_HEADERS_DIR}/RegexKit/pcre.h' '${REGEXKIT_SOURCE_DIR}/Build/Distribution/distribution_pcre.h')
+-
+-ifeq (${ORIGINAL_RK_PCRE_HEADER},)
+-$(info Copying the installed PCRE's '${PCRE_HEADER}' to RegexKit's Headers directory at '${REGEXKIT_HEADERS_DIR}/RegexKit/pcre.h')
+-$(shell cp '${PCRE_HEADER}' '${REGEXKIT_HEADERS_DIR}/RegexKit/pcre.h')
+-endif
+ 
+ vpath %.m ${REGEXKIT_SOURCE_DIR}
+ vpath %.h ${REGEXKIT_HEADERS_DIR}/RegexKit
+@@ -29,7 +21,7 @@
+ LIBRARY_NAME = libRegexKit
+ PACKAGE_NAME = RegexKit
+ 
+-libRegexKit_HEADER_FILES             = NSArray.h NSData.h NSDictionary.h NSObject.h NSSet.h NSString.h RKEnumerator.h RKCache.h RKEnumerator.h RKRegex.h RKUtility.h RegexKit.h RegexKitDefines.h RegexKitTypes.h pcre.h
++libRegexKit_HEADER_FILES             = NSArray.h NSData.h NSDictionary.h NSObject.h NSSet.h NSString.h RKEnumerator.h RKCache.h RKEnumerator.h RKRegex.h RKUtility.h RegexKit.h RegexKitDefines.h RegexKitTypes.h
+ libRegexKit_OBJC_FILES               = NSArray.m NSData.m NSDictionary.m NSObject.m NSSet.m NSString.m RKAutoreleasedMemory.m RKCache.m RKCoder.m RKEnumerator.m RKLock.m RKPlaceholder.m RKPrivate.m RKRegex.m RKSortedRegexCollection.m RKThreadPool.m RKUtility.m
+ libRegexKit_HEADER_FILES_DIR         = ${REGEXKIT_HEADERS_DIR}/RegexKit
+ libRegexKit_HEADER_FILES_INSTALL_DIR = /RegexKit
+diff -Nur RegexKit_0.6.0_source.orig/GNUstep/GNUmakefile.postamble RegexKit_0.6.0_source.Linux/GNUstep/GNUmakefile.postamble
+--- RegexKit_0.6.0_source.orig/GNUstep/GNUmakefile.postamble	2007-10-09 21:03:17.000000000 -0600
++++ RegexKit_0.6.0_source.Linux/GNUstep/GNUmakefile.postamble	2008-02-02 20:43:19.000000000 -0700
+@@ -20,7 +20,7 @@
+     export PERL=${PERL}; \
+     export SHELL=${SHELL}; \
+     export SED=${SED}; \
+-		export TARGET_BUILD_DIR=${GNUSTEP_INSTALLATION_DIR}/Library/Headers; \
++		export TARGET_BUILD_DIR=${GNUSTEP_HEADERS}${GNUSTEP_HEADERS_INSTALL}; \
+ 		export PUBLIC_HEADERS_FOLDER_PATH=${libRegexKit_HEADER_FILES_INSTALL_DIR}; \
+ 		export TEMP_FILES_DIR=${GNUSTEP_BUILD_DIR}; \
+ 		${REGEXKIT_SOURCE_DIR}/Build/Scripts/stripHeaderdoc.sh $(HEADERDOC_REDIRECT)"$(END_ECHO)
+diff -Nur RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/NSStringPrivate.h RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/NSStringPrivate.h
+--- RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/NSStringPrivate.h	2008-01-21 02:28:09.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/NSStringPrivate.h	2008-02-02 20:42:50.000000000 -0700
+@@ -219,7 +219,7 @@
+ NSString     *RKStringFromReferenceString(id self, const SEL _cmd, RKRegex * const RK_C99(restrict) regex, RK_STRONG_REF const NSRange * const RK_C99(restrict) matchRanges, RK_STRONG_REF const RKStringBuffer * const RK_C99(restrict) matchStringBuffer, RK_STRONG_REF const RKStringBuffer * const RK_C99(restrict) referenceStringBuffer) RK_ATTRIBUTES(malloc, used, visibility("hidden"));
+ BOOL          RKExtractCapturesFromMatchesWithKeyArguments(id self, const SEL _cmd, RK_STRONG_REF const RKStringBuffer * const RK_C99(restrict) stringBuffer, RKRegex * const RK_C99(restrict) regex, RK_STRONG_REF const NSRange * const RK_C99(restrict) matchRanges, const RKCaptureExtractOptions captureExtractOptions, NSString * const firstKey, va_list useVarArgsList) RK_ATTRIBUTES(used, visibility("hidden"));
+ 
+-#endif _REGEXKIT_NSSTRINGPRIVATE_H_
++#endif // _REGEXKIT_NSSTRINGPRIVATE_H_
+   
+ #ifdef __cplusplus
+ }  /* extern "C" */
+diff -Nur RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RegexKitDefines.h RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RegexKitDefines.h
+--- RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RegexKitDefines.h	2008-01-28 17:42:24.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RegexKitDefines.h	2008-02-02 20:42:50.000000000 -0700
+@@ -43,8 +43,6 @@
+ #ifndef _REGEXKIT_REGEXKITDEFINES_H_
+ #define _REGEXKIT_REGEXKITDEFINES_H_ 1
+ 
+-#import <mach-o/loader.h>
+-
+ #define __REGEXKIT__
+ 
+ 
+@@ -67,6 +65,11 @@
+ #error Unable to determine run time environment, automatic Mac OS X and GNUstep detection failed
+ #endif
+ 
++#if defined(__MACOSX_RUNTIME__)
++#import <mach-o/loader.h>
++#endif
++
++
+ /*!
+  @defined RKInteger
+  @tocgroup Constants Preprocessor Macros
+diff -Nur RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RegexKit.h RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RegexKit.h
+--- RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RegexKit.h	2008-01-21 02:28:12.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RegexKit.h	2008-02-02 20:42:50.000000000 -0700
+@@ -65,7 +65,7 @@
+ @class RKRegexPlaceholder;
+ #endif
+ 
+-#import <RegexKit/pcre.h>
++#import <pcre.h>
+   
+ #import <RegexKit/RKCache.h>
+ #import <RegexKit/RKRegex.h>
+diff -Nur RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RegexKitPrivateAtomic.h RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RegexKitPrivateAtomic.h
+--- RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RegexKitPrivateAtomic.h	2008-01-21 02:28:12.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RegexKitPrivateAtomic.h	2008-02-02 20:42:50.000000000 -0700
+@@ -164,7 +164,7 @@
+ #define RKAtomicIncrementIntBarrier(ptr)                       __sync_add_and_fetch(ptr, 1)
+ #define RKAtomicDecrementIntBarrier(ptr)                       __sync_sub_and_fetch(ptr, 1)
+ #define RKAtomicCompareAndSwapInt(oldValue, newValue, ptr)     __sync_bool_compare_and_swap(ptr, oldValue, newValue)
+-#define RKAtomicCompareAndSwapPtr(oldp, newp, ptr)             __sync_bool_compare_and_swap(ptr, oldValue, newValue)
++#define RKAtomicCompareAndSwapPtr(oldp, newp, ptr)             __sync_bool_compare_and_swap(ptr, oldp, newp)
+ 
+ #define RKAtomicIncrementInteger(ptr)                          __sync_add_and_fetch(ptr, 1)
+ #define RKAtomicDecrementInteger(ptr)                          __sync_sub_and_fetch(ptr, 1)
+diff -Nur RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RegexKitPrivateThreads.h RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RegexKitPrivateThreads.h
+--- RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RegexKitPrivateThreads.h	2008-01-21 02:28:12.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RegexKitPrivateThreads.h	2008-02-02 20:42:50.000000000 -0700
+@@ -95,7 +95,6 @@
+ #warning Unable to determine platform specific thread operations. Trying sched_yield() and pthread_main_np().
+ 
+ #import <pthread.h>
+-#import <pthread_np.h>
+ 
+ #define HAVE_RKREGEX_THREAD_OPS
+ 
+diff -Nur RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RKRegex.h RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RKRegex.h
+--- RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RKRegex.h	2008-01-27 02:43:10.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RKRegex.h	2008-02-02 20:42:50.000000000 -0700
+@@ -51,7 +51,7 @@
+ #import <RegexKit/RegexKitDefines.h>
+ #import <RegexKit/RegexKitTypes.h>
+ #import <RegexKit/RegexKit.h>
+-#import <RegexKit/pcre.h>
++#import <pcre.h>
+ 
+ 
+ /*!
+diff -Nur RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RKThreadPool.h RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RKThreadPool.h
+--- RegexKit_0.6.0_source.orig/Source/Headers/RegexKit/RKThreadPool.h	2008-01-27 02:06:27.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/Headers/RegexKit/RKThreadPool.h	2008-02-02 20:42:50.000000000 -0700
+@@ -56,10 +56,12 @@
+ #import <sys/time.h>
+ #import <stdlib.h>
+ #import <sys/sysctl.h>
++#if defined(__MACOSX_RUNTIME__)
+ #if       MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+ #import <mach/thread_act.h>
+ #import <mach/thread_policy.h>
+ #endif // MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
++#endif
+   
+ @class RKLock, RKConditionLock;
+ 
+diff -Nur RegexKit_0.6.0_source.orig/Source/RKCache.m RegexKit_0.6.0_source.Linux/Source/RKCache.m
+--- RegexKit_0.6.0_source.orig/Source/RKCache.m	2008-01-25 17:42:50.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/RKCache.m	2008-02-02 20:42:50.000000000 -0700
+@@ -47,7 +47,6 @@
+ 
+  as a visual reminder that code within the comments is sensitive to lock based programming problems.
+ */
+-
+ #import <RegexKit/RKCache.h>
+ #import <RegexKit/RegexKitPrivate.h>
+ // Not placed in RKCache.h because that's a public include which would require RKLock.h to be public, but it's only used internally.
+@@ -97,7 +96,7 @@
+   if(RKCacheLoadInitialized == 1) { return; }
+   
+   if(RKAtomicCompareAndSwapInt(0, 1, &RKCacheLoadInitialized)) {
+-    if((cacheMapKeyCallBacks = dlsym(RTLD_DEFAULT, "NSIntegerMapKeyCallBacks")) == NULL) { cacheMapKeyCallBacks = dlsym(RTLD_DEFAULT, "NSIntMapKeyCallBacks"); }
++		cacheMapKeyCallBacks = &NSIntMapKeyCallBacks;
+ 
+ #ifdef ENABLE_MACOSX_GARBAGE_COLLECTION
+     id garbageCollector = objc_getClass("NSGarbageCollector");
+diff -Nur RegexKit_0.6.0_source.orig/Source/RKLock.m RegexKit_0.6.0_source.Linux/Source/RKLock.m
+--- RegexKit_0.6.0_source.orig/Source/RKLock.m	2008-01-28 22:11:00.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/RKLock.m	2008-02-02 20:42:50.000000000 -0700
+@@ -45,6 +45,7 @@
+ 
+ #import <RegexKit/RKLock.h>
+ #import <sys/time.h>
++#import <math.h>
+ 
+ #pragma mark Exceptions
+ 
+@@ -116,7 +117,7 @@
+ 
+   if((pthreadError = pthread_mutexattr_init(&threadMutexAttribute))                              != 0) { NSLog(@"pthread_mutexattr_init returned #%d, %s.",    pthreadError, strerror(pthreadError)); goto errorExit; }
+   mutexAttributeInitialized = YES;
+-  if((pthreadError = pthread_mutexattr_settype(&threadMutexAttribute, PTHREAD_MUTEX_ERRORCHECK)) != 0) { NSLog(@"pthread_mutexattr_settype returned #%d, %s.", pthreadError, strerror(pthreadError)); goto errorExit; }
++  if((pthreadError = pthread_mutexattr_settype(&threadMutexAttribute, PTHREAD_MUTEX_ERRORCHECK_NP)) != 0) { NSLog(@"pthread_mutexattr_settype returned #%d, %s.", pthreadError, strerror(pthreadError)); goto errorExit; }
+   
+   while((pthreadError = pthread_mutex_init(&lock, &threadMutexAttribute)) != 0) {
+     if(pthreadError == EAGAIN)  { initTryCount++; if(initTryCount > 5) { NSLog(@"pthread_mutex_init returned EAGAIN 5 times, giving up."); goto errorExit; } RKThreadYield(); continue; }
+@@ -480,7 +481,7 @@
+ 
+   if((pthreadError = pthread_mutexattr_init(&threadMutexAttribute))                              != 0) { NSLog(@"pthread_mutexattr_init returned #%d, %s.",    pthreadError, strerror(pthreadError)); goto errorExit; }
+   mutexAttributeInitialized = YES;
+-  if((pthreadError = pthread_mutexattr_settype(&threadMutexAttribute, PTHREAD_MUTEX_ERRORCHECK)) != 0) { NSLog(@"pthread_mutexattr_settype returned #%d, %s.", pthreadError, strerror(pthreadError)); goto errorExit; }
++  if((pthreadError = pthread_mutexattr_settype(&threadMutexAttribute, PTHREAD_MUTEX_ERRORCHECK_NP)) != 0) { NSLog(@"pthread_mutexattr_settype returned #%d, %s.", pthreadError, strerror(pthreadError)); goto errorExit; }
+   
+   while((pthreadError = pthread_mutex_init(&pthreadMutex, &threadMutexAttribute)) != 0) {
+     if(pthreadError == EAGAIN) { initTryCount++; if(initTryCount > 5) { NSLog(@"pthread_mutex_init returned EAGAIN 5 times, giving up."); goto errorExit; } RKThreadYield(); continue; }
+diff -Nur RegexKit_0.6.0_source.orig/Source/RKRegex.m RegexKit_0.6.0_source.Linux/Source/RKRegex.m
+--- RegexKit_0.6.0_source.orig/Source/RKRegex.m	2008-01-29 03:18:59.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/RKRegex.m	2008-02-02 20:42:50.000000000 -0700
+@@ -420,10 +420,6 @@
+   NSNumber *kernNumber                      = [NSNumber numberWithFloat:2.0f];
+   NSNumber *underlineStyleNumber            = [NSNumber numberWithInt:(NSSingleUnderlineStyle | NSUnderlinePatternSolid)];
+   NSColor  *underlineColor                  = [[NSColor redColor] colorWithAlphaComponent:0.75f];
+-  NSShadow *errorShadow                     = [[[NSShadow alloc] init] autorelease];
+-  [errorShadow setShadowOffset:NSMakeSize(0.0f, 0.0f)];
+-  [errorShadow setShadowBlurRadius:3.0f];
+-  [errorShadow setShadowColor:[NSColor redColor]];    
+   
+   
+   RKStringBuffer abreviatedRegexStringBuffer = RKStringBufferWithString(abreviatedRegexString);
+@@ -437,7 +433,6 @@
+   [abreviatedAttributedRegexString addAttribute:NSKernAttributeName            value:kernNumber           range:abreviatedRegexStringUTF16KernRange];
+   [abreviatedAttributedRegexString addAttribute:NSUnderlineStyleAttributeName  value:underlineStyleNumber range:abreviatedRegexStringUTF16ErrorRange];
+   [abreviatedAttributedRegexString addAttribute:NSUnderlineColorAttributeName  value:underlineColor       range:abreviatedRegexStringUTF16ErrorRange];
+-  [abreviatedAttributedRegexString addAttribute:NSShadowAttributeName          value:errorShadow          range:abreviatedRegexStringUTF16ErrorRange];
+   
+   NSRange regexStringUTF8KernRange  = RKRangeForUTF8CharacterAtLocation(regexStringBuffer, (regexStringUTF8ErrorRange.location > 0) ? regexStringUTF8ErrorRange.location - 1 : 0);
+   regexStringUTF8KernRange  = NSMakeRange(regexStringUTF8KernRange.location, NSMaxRange(regexStringUTF8ErrorRange) - regexStringUTF8KernRange.location);
+@@ -447,7 +442,6 @@
+   [attributedRegexString           addAttribute:NSKernAttributeName            value:kernNumber           range:regexStringUTF16KernRange];
+   [attributedRegexString           addAttribute:NSUnderlineStyleAttributeName  value:underlineStyleNumber range:regexStringUTF16ErrorRange];
+   [attributedRegexString           addAttribute:NSUnderlineColorAttributeName  value:underlineColor       range:regexStringUTF16ErrorRange];
+-  [attributedRegexString           addAttribute:NSShadowAttributeName          value:errorShadow          range:regexStringUTF16ErrorRange];
+   
+ #else  // not defined(__MACOSX_RUNTIME__) || (GNUSTEP_GUI_MINOR_VERSION < 12) 
+   
+@@ -579,7 +573,7 @@
+   if(RK_EXPECTED(compiledRegexStringBuffer.characters == NULL, 0)) { [[NSException rkException:NSInternalInconsistencyException for:self selector:_cmd localizeReason:@"Unable to get string buffer from object '%@', which is a copy of the passed object '%@'.", RKPrettyObjectDescription(compiledRegexString), RKPrettyObjectDescription(regexString)] raise]; }
+   
+   RK_PROBE(BEGINREGEXCOMPILE, self, (unsigned long)hash, (char *)compiledRegexStringBuffer.characters, (int)compileOption);
+-  _compiledPCRE = pcre_compile2(compiledRegexStringBuffer.characters, (int)compileOption, (int *)&compileErrorCode, &errorCharPtr, &(int)compileErrorOffset, NULL);
++  _compiledPCRE = pcre_compile2(compiledRegexStringBuffer.characters, (int)compileOption, (int *)&compileErrorCode, &errorCharPtr, (int)&compileErrorOffset, NULL);
+   RK_PROBE(ENDREGEXCOMPILE,   self, (unsigned long)hash, (char *)compiledRegexStringBuffer.characters, (int)compileOption, (int)compileErrorCode, (char *)RKCharactersFromCompileErrorCode(compileErrorCode), (compileErrorCode == RKCompileErrorNoError) ? "" : (char *)errorCharPtr, (compileErrorCode == RKCompileErrorNoError) ? 0 : (int)compileErrorOffset);
+   
+   if(RK_EXPECTED(RK_EXPECTED((compileErrorCode != RKCompileErrorNoError), 0) || RK_EXPECTED((_compiledPCRE == NULL), 0), 0)) { initRegexError = RKErrorForCompileInitFailure(self, _cmd, &compiledRegexStringBuffer, compileErrorOffset, compileErrorCode, compileOption, 5); NSParameterAssert(initRegexError != NULL); goto errorExit; }
+diff -Nur RegexKit_0.6.0_source.orig/Source/RKSortedRegexCollection.m RegexKit_0.6.0_source.Linux/Source/RKSortedRegexCollection.m
+--- RegexKit_0.6.0_source.orig/Source/RKSortedRegexCollection.m	2008-01-25 15:10:00.000000000 -0700
++++ RegexKit_0.6.0_source.Linux/Source/RKSortedRegexCollection.m	2008-02-02 20:42:50.000000000 -0700
+@@ -178,7 +178,7 @@
+   if(collectionType == RKArrayCollection) { CFArrayGetValues((CFArrayRef)collection, (CFRange){0, (CFIndex)collectionCount}, (const void **)(&regexObjects[0])); }
+   else { CFSetGetValues((CFSetRef)collection, (const void **)(&regexObjects[0])); }
+ #else
+-  if(collectionType == RKArrayCollection) { [collection getObjects:&arrayObjects[0] range:NSMakeRange(0, collectionCount)]; }
++  if(collectionType == RKArrayCollection) { [collection getObjects:&regexObjects[0] range:NSMakeRange(0, collectionCount)]; }
+   else { [[collection allObjects] getObjects:&regexObjects[0]]; }
+ #endif
+ 
