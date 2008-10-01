@@ -1,3 +1,4 @@
+# TODO: optflags
 Summary:	An Objective-C framework for regular expressions
 Summary(pl.UTF-8):	Biblioteka Objective-C do wyrażeń regularnych
 Name:		RegexKit
