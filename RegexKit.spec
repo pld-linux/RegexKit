@@ -35,7 +35,7 @@ Pliki nagłówkowe biblioteki RegexKit.
 
 %prep
 %setup -q -n %{name}_%{version}_source
-%patch0 -p1
+%patch -P0 -p1
 
 %build
 export GNUSTEP_MAKEFILES=%{_datadir}/GNUstep/Makefiles
